@@ -1,26 +1,25 @@
-import React from 'react';
+import React, { Component } from 'react';
+
+import { PathNumberComponent } from './components/path-number.component';
+
 import logo from './logo.svg';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  render() {
+    const today = new Date();
+    return (
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <PathNumberComponent/>
+        </header>
+        <footer className="App-footer">
+          {today.getFullYear()} | © <a href="https://bit.ly/andriim" rel="noopener" target="_blank">am0wa</a> | <a href="https://bit.ly/am0wa-donate" rel="noopener" target="_blank">Donate</a>
+        </footer>
+      </div>
+    );
+  }
 }
 
 export default App;
