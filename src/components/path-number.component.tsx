@@ -1,12 +1,13 @@
 import React, { Component, SyntheticEvent } from 'react';
 import { Observable, Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, throttleTime } from 'rxjs/operators';
 
 import InputGroup from 'reactstrap/lib/InputGroup';
 import Input from 'reactstrap/lib/Input';
 import Button from 'reactstrap/lib/Button';
 import InputGroupAddon from 'reactstrap/lib/InputGroupAddon';
 import Badge from 'reactstrap/lib/Badge';
+import { KeyboardKey } from '../core/keyboard';
 
 interface PathNumberState {
   greeting?: string,
@@ -50,6 +51,10 @@ export class PathNumberComponent extends Component<{},PathNumberState> {
             name="numToCheckInput"
             value={this.state.numToCheckInput}
             onChange={this.onNumInputChange}
+            autoComplete={'off'}
+            onKeyDown={this.onNumInputKeyDown}
+            onKeyUp={this.onNumInputKeyUp}
+            /* no keypress on mobile */
           />
           <InputGroupAddon addonType="append">
             <Button outline color="success" onClick={this.cleanUp}>
@@ -64,18 +69,49 @@ export class PathNumberComponent extends Component<{},PathNumberState> {
     )
   };
 
+  onNumInputKeyUp = (event: React.KeyboardEvent) => {
+    console.log(`keyup: ${event.key} code: ${event.keyCode} which: ${event.which} charCode: ${event.charCode}`);
+  };
+
+  onNumInputKeyDown = (event: React.KeyboardEvent) => {
+    console.log(`keydown: ${event.key} code: ${event.keyCode} which: ${event.which} charCode: ${event.charCode}`);
+    if (event.key === KeyboardKey.Enter) {
+      event.preventDefault();
+      this.onNumInputEnter();
+    }
+    if (event.key === KeyboardKey.Backspace) {
+      event.preventDefault();
+      const { length } = this.state.numToCheckInput;
+      const lastCharIdx = length > 0 ? length - 1 : 0;
+      const withoutLastChar = this.state.numToCheckInput.substr(0, lastCharIdx);
+      this.numInputEmitter.next(withoutLastChar);
+    }
+  };
+
+  onNumInputEnter = () => {
+    this.cleanUp();
+  };
+
   onNumInputChange = (event: SyntheticEvent) => {
+    event.preventDefault();
     const { value } = event.target as HTMLInputElement;
     this.numInputEmitter.next(value);
   };
 
   calculatePathNumberFromInput = (value: string) => {
-    const newValue = parseInt(value, 10) || '';
+    if (+value >= Number.MAX_VALUE) {
+      return;
+    }
+    
+    const newValue: string = !isNaN(parseFloat(value))
+      ? value
+      : '';
+    
     this.setState((prevState) => (
       {
         ...prevState,
         greeting: undefined,
-        numToCheckInput: '' + newValue
+        numToCheckInput: newValue
       })
     );
 
@@ -108,12 +144,18 @@ export class PathNumberComponent extends Component<{},PathNumberState> {
     this.setState((prevState) => ({ ...prevState, pathNumber }));
   };
 
-  calculateDigitsSum = (strNum: string | number): number => {
+  calculateDigitsSum = (strNum: string | number): number | undefined => {
     const sum: number = ('' + strNum).split('')
       .map((str) => parseInt(str, 10))
       .reduce((acc, digit) => acc + digit, 0);
 
-    return sum < 10 ? sum : this.calculateDigitsSum(sum);
+    if (isNaN(sum)) {
+      return undefined;
+    }
+
+    return sum < 10
+      ? sum
+      : this.calculateDigitsSum(sum);
   }
 }
 

@@ -1,6 +1,6 @@
 import React, { Component, SyntheticEvent } from 'react';
 import { Observable, Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, throttleTime } from 'rxjs/operators';
 
 import {
   FormGroup,
@@ -11,6 +11,7 @@ import {
 } from 'reactstrap';
 import { InputType } from 'reactstrap/lib/Input';
 import { AlertInfo, AlertType } from '../ui';
+import { KeyboardKey } from '../core/keyboard';
 
 interface AInputProps {
   name: string;
@@ -19,12 +20,13 @@ interface AInputProps {
   label?: string;
   value: string | undefined;
   /** ms */
-  debounceTime?: number;
+  throttleTime?: number;
   description?: string;
   alertMessage?: string;
   datalist?: string[];
   autoComplete?: 'on' | 'off'
   onChange?: (input: string) => void;
+  onEnterKey?: () => void;
   id?: string;
   log?: boolean;
 }
@@ -75,7 +77,7 @@ export class AppInputComponent extends Component<AInputProps> {
 
   componentDidMount(): void {
     this._inputSubscription = this.input$.pipe(
-      debounceTime(this.props.debounceTime || 0)
+      throttleTime(this.props.throttleTime || 0)
     ).subscribe(
       (input) => {
         if (this.props.onChange) {
@@ -102,6 +104,7 @@ export class AppInputComponent extends Component<AInputProps> {
           autoComplete={this.props.autoComplete}
           value={this.props.value}
           onChange={this.onInputChange}
+          onKeyDown={this.onKeyDown}
           list={this.props.datalist ? this.props.name +'s' : ''}
         />
         {AppInputComponent.datalistElement(this.props.datalist, this.props.name +'s')}
@@ -114,6 +117,13 @@ export class AppInputComponent extends Component<AInputProps> {
         }
       </FormGroup>
     );
+  };
+
+  onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === KeyboardKey.Enter && this.props.onEnterKey) {
+      event.preventDefault();
+      this.props.onEnterKey();
+    }
   };
 
   onInputChange = (event: SyntheticEvent) => {
