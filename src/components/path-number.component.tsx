@@ -1,6 +1,6 @@
 import React, { Component, SyntheticEvent } from 'react';
 import { Observable, Subject } from 'rxjs';
-import { debounceTime, throttleTime } from 'rxjs/operators';
+import { debounceTime } from 'rxjs/operators';
 
 import InputGroup from 'reactstrap/lib/InputGroup';
 import Input from 'reactstrap/lib/Input';
@@ -14,6 +14,13 @@ interface PathNumberState {
   numToCheckInput: string,
   pathNumber: number | undefined
 }
+
+const alphabet = [
+  'A','B','C','D','E','F','G','H','I',
+  'J','K','L','M','N','O','P','Q','R',
+  'S','T','U','V','W','X','Y','Z'
+]
+const letterOrNumberRegExp = /^[0-9a-zA-Z]+$/
 
 export class PathNumberComponent extends Component<{},PathNumberState> {
 
@@ -74,7 +81,8 @@ export class PathNumberComponent extends Component<{},PathNumberState> {
   };
 
   onNumInputKeyDown = (event: React.KeyboardEvent) => {
-    console.log(`keydown: ${event.key} code: ${event.keyCode} which: ${event.which} charCode: ${event.charCode}`);
+    // commented for less output
+    // console.log(`keydown: ${event.key} code: ${event.keyCode} which: ${event.which} charCode: ${event.charCode}`);
     if (event.key === KeyboardKey.Enter) {
       event.preventDefault();
       this.onNumInputEnter();
@@ -102,11 +110,9 @@ export class PathNumberComponent extends Component<{},PathNumberState> {
     if (+value >= Number.MAX_VALUE) {
       return;
     }
-    
-    const newValue: string = !isNaN(parseFloat(value))
-      ? value
-      : '';
-    
+
+    const newValue: string = this.sanitizeLetters(value)
+
     this.setState((prevState) => (
       {
         ...prevState,
@@ -115,7 +121,7 @@ export class PathNumberComponent extends Component<{},PathNumberState> {
       })
     );
 
-    this.calculatePathNumber(newValue);
+    this.calculatePathNumber(this.replaceLettersWithDigits(newValue));
   };
 
   cleanUp = () => {
@@ -143,6 +149,34 @@ export class PathNumberComponent extends Component<{},PathNumberState> {
 
     this.setState((prevState) => ({ ...prevState, pathNumber }));
   };
+
+  sanitizeLetters = (input: string): string => {
+    return ('' + input).split('')
+      .map((char) => { // sanitize value
+        if (char.match(letterOrNumberRegExp)) {
+          return char;
+        } else {
+          console.warn(`Value was sanitized: ${char}`);
+          return '';
+        }
+      })
+      .join('');
+  }
+
+  replaceLettersWithDigits = (letters: string): string => {
+    return ('' + letters).split('')
+      .map(letterOrDigit => { // replace letter with digit
+        const idx = alphabet.indexOf(letterOrDigit.toUpperCase());
+        if (idx !== -1) {
+          console.warn(`Letter ${letterOrDigit} was converted to: ${idx + 1}`);
+          return idx + 1;
+        }
+        const digit = parseInt(letterOrDigit, 10);
+        return digit ?? -1;
+      })
+      .filter(num => num > 0)
+      .join('');
+  }
 
   calculateDigitsSum = (strNum: string | number): number | undefined => {
     const sum: number = ('' + strNum).split('')
