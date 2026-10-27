@@ -18,3 +18,13 @@ test('calculates path number from typed input and resets on "Let Go"', async () 
   expect(screen.getByRole('heading')).toHaveTextContent(/^Good Luck$/);
   expect(screen.getByRole('img', { name: 'Good luck' })).toBeInTheDocument();
 });
+
+test('"?" opens the root number hint card', () => {
+  render(<App />);
+
+  const help = screen.getByRole('button', { name: 'What is the root number?' });
+  const hint = screen.getByText(/until/).closest('[popover]');
+
+  expect(hint).toHaveAttribute('popover', 'auto');
+  expect(help).toHaveAttribute('popovertarget', hint?.id);
+});
