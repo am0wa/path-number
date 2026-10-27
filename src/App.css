@@ -7,6 +7,8 @@
   /* Calmer colour fades than the design's .15s */
   --fade: .3s ease;
   min-height: 100vh;
+  /* The zoomed lotus may outgrow the screen; clip it without making a scroll container */
+  overflow-x: clip;
   padding-left: var(--gutter);
   padding-right: var(--gutter);
 }
@@ -39,8 +41,27 @@
   text-shadow:
     0 0 .5em color-mix(in srgb, var(--accent) var(--bloom), transparent),
     0 0 2em color-mix(in srgb, var(--accent) var(--bloom), transparent);
-  pointer-events: none;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Our double tap zooms the lotus, not the page */
+  touch-action: manipulation;
+  /* Double tap zooms in around the tapped point (set from JS) */
+  position: relative;
+  z-index: 1;
+  transform-origin: var(--zoom-x) var(--zoom-y);
+  transform: scale(var(--zoom));
+  transition: transform .5s ease;
+}
+
+/* Zoomed, the wide 2em glow blurs a 4× area and stalls the zoom-out (~200ms on desktop Chrome); the near glow is enough */
+.App-lotus[data-zoomed] {
+  text-shadow: 0 0 .5em color-mix(in srgb, var(--accent) var(--bloom), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .App-lotus { transition: none; }
 }
 
 /* Spans the gl-screen side gutters on the bottom edge */
