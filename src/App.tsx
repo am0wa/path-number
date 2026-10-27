@@ -12,7 +12,7 @@ export const App = () => (
     <footer className="gl-footer App-footer">
       <span>© {new Date().getFullYear()}</span>
       <span className="gl-dot">·</span>
-      <a href="https://www.bakeit.dev/learn/am0wa-manifesto/" rel="noopener" target="_blank">am0wa</a>
+      <a href="https://www.andriimur.com/" rel="author noopener" target="_blank">andriimur</a>
       <span className="gl-dot">·</span>
       <a href="https://ko-fi.com/am0wa" rel="noopener" target="_blank">Donate</a>
     </footer>
