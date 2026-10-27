@@ -28,21 +28,14 @@
   flex-grow: var(--phi);
 }
 
-/* Lotus fills the content column: each generated column is one 0.6em monospace cell, rows 1.2em tall (2:1 cell, as generated) */
+/* Lotus fills the content column. The box takes the target size and the tap zoom; the art inside is laid out
+   at a legible --art-font (Android WebViews won't render text under 8px) and scaled down by --fit to fill it. */
 .App-lotus {
-  /* Bloom (0–100): glow strength in the accent colour */
-  --bloom: 15%;
   /* Content column × φ (≈680px), within the screen gutters */
   --width: min(var(--content-max) * var(--phi), 100vw - 2 * var(--gutter));
-  margin: 0;
-  overflow: visible;
-  font-family: var(--font-mono);
-  font-size: calc(var(--width) / var(--cols) / .6);
-  line-height: 1.2;
-  color: var(--accent);
-  text-shadow:
-    0 0 .5em color-mix(in srgb, var(--accent) var(--bloom), transparent),
-    0 0 2em color-mix(in srgb, var(--accent) var(--bloom), transparent);
+  width: var(--width);
+  /* Rows are line-height tall, so the height needs no glyph metrics */
+  height: calc(var(--rows) * 1.2 * var(--art-font) * var(--fit));
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -58,6 +51,26 @@
   transition: transform var(--zoom-ms) ease;
 }
 
+/* One 0.6em monospace cell per generated column, rows 1.2em tall (2:1 cell, as generated) */
+.App-lotus-art {
+  /* Bloom (0–100): glow strength in the accent colour */
+  --bloom: 15%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: max-content;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--art-font);
+  line-height: 1.2;
+  color: var(--accent);
+  text-shadow:
+    0 0 .5em color-mix(in srgb, var(--accent) var(--bloom), transparent),
+    0 0 2em color-mix(in srgb, var(--accent) var(--bloom), transparent);
+  transform-origin: 0 0;
+  transform: scale(var(--fit));
+}
+
 /* Keyboard focus as a soft ring, like the field's halo */
 .App-lotus:focus-visible {
   outline: 2px solid var(--accent-soft);
@@ -67,8 +80,11 @@
 
 /* Zoomed, the wide 2em glow blurs a 4× area and stalls the zoom-out (~200ms on desktop Chrome); the near glow is enough */
 .App-lotus[data-zoomed] {
-  text-shadow: 0 0 .5em color-mix(in srgb, var(--accent) var(--bloom), transparent);
   cursor: zoom-out;
+}
+
+.App-lotus[data-zoomed] > .App-lotus-art {
+  text-shadow: 0 0 .5em color-mix(in srgb, var(--accent) var(--bloom), transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

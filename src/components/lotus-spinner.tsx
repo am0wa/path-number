@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from 'react';
 
 import { KeyboardKey } from '../core/keyboard';
 import { LOTUS_COLS, LOTUS_ROWS, lotusFrame } from '../core/lotus';
@@ -14,6 +14,12 @@ const ZOOM_MS = 500;
 
 const CENTER = { x: '50%', y: '50%' };
 
+/**
+ * Layout size of the glyphs. The lotus needs ~3px glyphs to fit a phone, below the 8px minimum font size
+ * Android WebViews (Instagram, Facebook) enforce, so it's laid out at a legible size and scaled down to fit.
+ */
+const ART_FONT_PX = 10;
+
 const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
 /**
@@ -27,6 +33,24 @@ export const LotusSpinner = () => {
   /** Kept after zooming out, so the lotus shrinks back towards the same point. */
   const [origin, setOrigin] = useState(CENTER);
   const toggledAt = useRef(-Infinity);
+  /** Box width ÷ the art's natural width; measured, as CSS can't divide one length by another yet. */
+  const [fit, setFit] = useState(1);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const artRef = useRef<HTMLPreElement>(null);
+
+  useLayoutEffect(() => {
+    const box = boxRef.current!;
+    const art = artRef.current!;
+    // offsetWidth ignores transforms: the box's laid-out width and the art's unscaled width
+    const measure = () => art.offsetWidth && setFit(box.offsetWidth / art.offsetWidth);
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    // The art also resizes when the web font loads and swaps the glyph advance
+    const observer = new ResizeObserver(measure);
+    observer.observe(box);
+    observer.observe(art);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (still) return;
@@ -51,7 +75,7 @@ export const LotusSpinner = () => {
     setZoomed(!zoomed);
   };
 
-  const onClick = (event: MouseEvent<HTMLPreElement>) => {
+  const onClick = (event: MouseEvent<HTMLDivElement>) => {
     const box = event.currentTarget.getBoundingClientRect();
     toggle({ x: `${event.clientX - box.left}px`, y: `${event.clientY - box.top}px` });
   };
@@ -72,10 +96,13 @@ export const LotusSpinner = () => {
     '--zoom-ms': `${ZOOM_MS}ms`,
     '--zoom-x': origin.x,
     '--zoom-y': origin.y,
+    '--art-font': `${ART_FONT_PX}px`,
+    '--fit': fit,
   } as CSSProperties;
 
   return (
-    <pre
+    <div
+      ref={boxRef}
       className="App-lotus"
       role="button"
       tabIndex={0}
@@ -86,7 +113,9 @@ export const LotusSpinner = () => {
       onClick={onClick}
       onKeyDown={onKeyDown}
     >
-      {lotusFrame(seconds)}
-    </pre>
+      <pre ref={artRef} className="App-lotus-art">
+        {lotusFrame(seconds)}
+      </pre>
+    </div>
   );
 };
