@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type KeyboardEvent } from 'react';
+import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 
 import { KeyboardKey } from '../core/keyboard';
 import { dateAsDigits, pathNumberOf, sanitize } from '../core/path-number';
@@ -6,6 +6,7 @@ import { HeartIcon } from './heart-icon';
 
 export const PathNumberComponent = () => {
   const [input, setInput] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
   const [cheered, setCheered] = useState(false);
   /** The number just let go; `seq` remounts the badge so the release animation replays on every "Let Go" */
   const [released, setReleased] = useState<{ value: number; seq: number }>();
@@ -19,6 +20,10 @@ export const PathNumberComponent = () => {
   };
 
   const letGo = () => {
+    // Nothing to let go: invite the next name or date instead
+    if (!input) {
+      inputRef.current?.focus();
+    }
     if (pathNumber !== undefined) {
       setReleased({ value: pathNumber, seq: (released?.seq ?? 0) + 1 });
     }
@@ -40,6 +45,7 @@ export const PathNumberComponent = () => {
       <h1 className="gl-heading App-heading">Good Luck<span key={released?.seq} className="gl-badge gl-badge--lg gl-badge--sage App-badge" data-released={released?.value}>{pathNumber ?? (cheered ? <HeartIcon /> : '#')}</span></h1>
       <div className="gl-field App-field" data-cheered={cheered || undefined}>
         <input
+          ref={inputRef}
           className="gl-input App-input"
           placeholder="name or number"
           aria-label="name or number"

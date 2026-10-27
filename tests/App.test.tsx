@@ -21,6 +21,15 @@ test('calculates path number from typed input and resets on "Let Go"', async () 
   expect(screen.getByRole('heading').querySelector('[data-released]')).toHaveAttribute('data-released', '1');
 });
 
+test('"Let Go" on an empty field focuses the input', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+
+  await user.click(screen.getByRole('button', { name: 'Let Go' }));
+
+  expect(screen.getByRole('textbox', { name: 'name or number' })).toHaveFocus();
+});
+
 test('"?" opens the root number hint card', () => {
   render(<App />);
 
