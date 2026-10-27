@@ -24,26 +24,29 @@
   flex-grow: var(--phi);
 }
 
-/* Logo = control height × φ² (≈126px) */
-.App-logo {
-  height: calc(var(--control-height) * var(--phi) * var(--phi));
+/* Lotus fills the content column: each generated column is one 0.6em monospace cell, rows 1.2em tall (2:1 cell, as generated) */
+.App-lotus {
+  /* Bloom (0–100): glow strength in the accent colour */
+  --bloom: 15%;
+  /* Content column × φ (≈680px), within the screen gutters */
+  --width: min(var(--content-max) * var(--phi), 100vw - 2 * var(--gutter));
+  margin: 0;
+  overflow: visible;
+  font-family: var(--font-mono);
+  font-size: calc(var(--width) / var(--cols) / .6);
+  line-height: 1.2;
+  color: var(--accent);
+  text-shadow:
+    0 0 .5em color-mix(in srgb, var(--accent) var(--bloom), transparent),
+    0 0 2em color-mix(in srgb, var(--accent) var(--bloom), transparent);
   pointer-events: none;
-  animation: App-logo-spin infinite 20s linear;
+  user-select: none;
 }
 
 /* Spans the gl-screen side gutters on the bottom edge */
 .App-footer {
   align-self: stretch;
   margin: 0 calc(-1 * var(--gutter));
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* The input is the main element: title size (22/28) within the 48px control height */

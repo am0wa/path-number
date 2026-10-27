@@ -1,12 +1,12 @@
+import { LotusSpinner } from './components/lotus-spinner';
 import { PathNumberComponent } from './components/path-number';
 
-import logo from './logo.svg';
 import './App.css';
 
 export const App = () => (
   <div className="gl-screen App">
     <div className="App-spacer" />
-    <img src={logo} className="App-logo" alt="logo" />
+    <LotusSpinner />
     <PathNumberComponent />
     <div className="App-spacer App-spacer--below" />
     <footer className="gl-footer App-footer">
