@@ -1,11 +1,12 @@
-const letterOrDigitRegExp = /^[0-9a-zA-Z]$/;
+const disallowedRegExp = /[^0-9a-zA-Z .]/g;
+const separatorRunRegExp = /[ .]{2,}/g;
 const charCodeOfA = 'A'.charCodeAt(0);
 
-/** Keeps only latin letters and digits. */
+/** Keeps latin letters, digits and single separators (space or dot); a run of separators collapses to its first one. */
 export const sanitize = (input: string): string =>
-  input.split('').filter((char) => letterOrDigitRegExp.test(char)).join('');
+  input.replace(disallowedRegExp, '').replace(separatorRunRegExp, (run) => run[0]);
 
-/** Replaces every letter with its alphabet position (A=1 … Z=26); drops zeros. */
+/** Replaces every letter with its alphabet position (A=1 … Z=26); separators count as 0; drops zeros. */
 export const lettersToDigits = (input: string): string =>
   input.split('')
     .map((char) => {
