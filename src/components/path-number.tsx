@@ -7,15 +7,21 @@ import { HeartIcon } from './heart-icon';
 export const PathNumberComponent = () => {
   const [input, setInput] = useState('');
   const [cheered, setCheered] = useState(false);
+  /** The number just let go; `seq` remounts the badge so the release animation replays on every "Let Go" */
+  const [released, setReleased] = useState<{ value: number; seq: number }>();
 
   const pathNumber = pathNumberOf(input);
 
   const check = (value: string) => {
     setCheered(false);
+    setReleased(undefined);
     setInput(sanitize(value));
   };
 
   const letGo = () => {
+    if (pathNumber !== undefined) {
+      setReleased({ value: pathNumber, seq: (released?.seq ?? 0) + 1 });
+    }
     setCheered(true);
     setInput('');
   };
@@ -31,7 +37,7 @@ export const PathNumberComponent = () => {
 
   return (
     <main className="gl-content">
-      <h1 className="gl-heading App-heading">Good Luck<span className="gl-badge gl-badge--lg gl-badge--sage App-badge">{pathNumber ?? (cheered ? <HeartIcon /> : '#')}</span></h1>
+      <h1 className="gl-heading App-heading">Good Luck<span key={released?.seq} className="gl-badge gl-badge--lg gl-badge--sage App-badge" data-released={released?.value}>{pathNumber ?? (cheered ? <HeartIcon /> : '#')}</span></h1>
       <div className="gl-field App-field" data-cheered={cheered || undefined}>
         <input
           className="gl-input App-input"

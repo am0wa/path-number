@@ -17,6 +17,8 @@ test('calculates path number from typed input and resets on "Let Go"', async () 
   expect(input).toHaveValue('');
   expect(screen.getByRole('heading')).toHaveTextContent(/^Good Luck$/);
   expect(screen.getByRole('img', { name: 'Good luck' })).toBeInTheDocument();
+  // The released number is handed to the CSS zoom-out animation, not left in the text
+  expect(screen.getByRole('heading').querySelector('[data-released]')).toHaveAttribute('data-released', '1');
 });
 
 test('"?" opens the root number hint card', () => {

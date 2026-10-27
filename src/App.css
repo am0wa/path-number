@@ -176,6 +176,39 @@
   color: var(--ink);
 }
 
+/* On "Let Go" the number zooms out of the badge and fades, so the result isn't missed as the heart takes its place.
+   A pseudo-element (not text content, hidden from screen readers); only transform and opacity animate, on the compositor. */
+.App-badge {
+  position: relative;
+}
+
+.App-badge[data-released]::after {
+  content: attr(data-released);
+  content: attr(data-released) / "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  color: var(--sage);
+  pointer-events: none;
+  animation: App-release 1.2s cubic-bezier(.2, .6, .3, 1) forwards;
+}
+
+@keyframes App-release {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(3.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .App-badge[data-released]::after { animation-name: App-release-fade; }
+}
+
+@keyframes App-release-fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 /* Heart matches the digits' optical size (≈ cap height) */
 .App-heart {
   width: 0.75em;
