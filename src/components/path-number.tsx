@@ -35,7 +35,8 @@ export const PathNumberComponent = () => {
       <div className="gl-field App-field" data-cheered={cheered || undefined}>
         <input
           className="gl-input App-input"
-          placeholder="check number"
+          placeholder="name or number"
+          aria-label="name or number"
           name="numToCheckInput"
           value={input}
           onChange={onChange}

@@ -6,7 +6,7 @@ test('calculates path number from typed input and resets on "Let Go"', async () 
   const user = userEvent.setup();
   render(<App />);
 
-  const input = screen.getByPlaceholderText('check number');
+  const input = screen.getByRole('textbox', { name: 'name or number' });
   await user.type(input, '1988-01-01');
 
   expect(input).toHaveValue('19880101');
