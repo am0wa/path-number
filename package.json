@@ -1,9 +1,9 @@
 {
   "name": "path-number",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "type": "module",
-  "homepage": "https://am0wa.github.io/path-number",
+  "homepage": "https://soulway.io",
   "scripts": {
     "start": "vite",
     "build": "tsc --noEmit && vite build",

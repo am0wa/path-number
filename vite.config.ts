@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  base: '/path-number/',
+  base: '/', // '/path-number/'
   plugins: [react()],
   build: {
     outDir: 'build',
