@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import 'bootstrap/dist/css/bootstrap.css';
+import './styles/tokens.css';
+import '../design/good-luck-design/components/bundle.css';
 import './index.css';
 import { App } from './App';
 

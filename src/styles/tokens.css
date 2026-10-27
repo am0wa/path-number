@@ -1,0 +1,58 @@
+/* Good Luck design tokens — generated from design/good-luck-design/tokens.json. Dark is the default theme. */
+:root {
+  color-scheme: dark;
+
+  --bg: #1d2130;
+  --surface: #262b3c;
+  --surface-sunken: #191c29;
+  --border: #353b50;
+  --border-strong: #757c9a;
+  --ink: #e7e5f0;
+  --ink-muted: #a7aac0;
+  --accent: #b3a4ef;
+  --accent-soft: #33304f;
+  --on-accent: #1d2130;
+  --sage: #8fcaa5;
+  --sage-soft: #25393a;
+  --mist: #86c3cb;
+  --mist-soft: #233641;
+  --rose: #e8a3ad;
+
+  --font-sans: Inter, "SF Pro Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+  --space-6: 64px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --control-height: 48px;
+  --content-max: 420px;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f5f3f9;
+  --surface: #ffffff;
+  --surface-sunken: #ece9f3;
+  --border: #dedaea;
+  --border-strong: #8a85a3;
+  --ink: #23263a;
+  --ink-muted: #585c74;
+  --accent: #5f4fbf;
+  --accent-soft: #e7e2fa;
+  --on-accent: #ffffff;
+  --sage: #2a7048;
+  --sage-soft: #dff0e5;
+  --mist: #2b6f78;
+  --mist-soft: #ddeef0;
+  --rose: #a8384b;
+}

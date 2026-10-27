@@ -10,10 +10,11 @@ test('calculates path number from typed input and resets on "Let Go"', async () 
   await user.type(input, '1988-01-01');
 
   expect(input).toHaveValue('19880101');
-  expect(screen.getByRole('heading')).toHaveTextContent('Good Luck: 1');
+  expect(screen.getByRole('heading')).toHaveTextContent('Good Luck1');
 
   await user.click(screen.getByRole('button', { name: 'Let Go' }));
 
   expect(input).toHaveValue('');
-  expect(screen.getByRole('heading')).toHaveTextContent('Good Luck: ♥️');
+  expect(screen.getByRole('heading')).toHaveTextContent(/^Good Luck$/);
+  expect(screen.getByRole('img', { name: 'Good luck' })).toBeInTheDocument();
 });

@@ -1,47 +1,40 @@
 .App {
-  text-align: center;
-  font-size: 2rem;
+  --phi: 1.618;
+  /* sage stepped 25% toward the darker end of the theme, for the pressed/hovered primary */
+  --sage-strong: color-mix(in srgb, var(--sage) 75%, var(--bg));
+  /* Side gutter one step up the spacing scale from the design's space-3 */
+  --gutter: var(--space-4);
+  /* Calmer colour fades than the design's .15s */
+  --fade: .3s ease;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  background-color: #282c34;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
 }
 
+[data-theme="light"] .App {
+  --sage-strong: color-mix(in srgb, var(--sage) 75%, var(--ink));
+}
+
+/* Free height splits 1 : φ above and below the logo + content block, so it sits on the golden section */
+.App-spacer {
+  flex: 1 1 0;
+}
+
+.App-spacer--below {
+  flex-grow: var(--phi);
+}
+
+/* Logo = control height × φ² (≈126px) */
 .App-logo {
-  height: 40vmin;
+  height: calc(var(--control-height) * var(--phi) * var(--phi));
   pointer-events: none;
-  margin: 9vh;
   animation: App-logo-spin infinite 20s linear;
 }
 
-.App-header {
-  background-color: #282c34;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  font-size: 2rem;
-  color: white;
-}
-
+/* Spans the gl-screen side gutters on the bottom edge */
 .App-footer {
-  color: white;
-  font-size: 1rem;
-}
-
-.App-footer a {
-  color: #ffffff;
-}
-
-.App-footer a:hover {
-  color: #17a2b8;
-}
-
-.App-link {
-  color: #61dafb;
+  align-self: stretch;
+  margin: 0 calc(-1 * var(--gutter));
 }
 
 @keyframes App-logo-spin {
@@ -53,19 +46,131 @@
   }
 }
 
-.form-control {
-  font-size: 2rem !important;
+/* The input is the main element: title size (22/28) within the 48px control height */
+.App-input {
+  font-size: 22px;
+  line-height: 28px;
 }
 
-.path-number-form {
-  margin: 2vw 4vw;
+/* The one headline: display size (32/40) */
+.App-heading {
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.01em;
 }
 
-@media screen and (max-width: 450px) {
-  .form-control {
-    font-size: 1.5rem !important;
+/* Result badge: a disc of heading size × φ (≈52px) around one glyph (1–9, ♥️ or #) at heading size.
+   line-height 1 keeps emoji and digits optically centred. */
+.App-badge {
+  --disc: calc(32px * var(--phi));
+  width: var(--disc);
+  min-width: 0;
+  height: var(--disc);
+  padding: 0;
+  border-radius: var(--radius-pill);
+  font-size: 32px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* Heart matches the digits' optical size (≈ cap height) */
+.App-heart {
+  width: 0.75em;
+  height: 0.75em;
+  color: var(--rose);
+}
+
+/* Input and "Let Go" glued into one control: no gap, shared inner edge squared off */
+.App-field {
+  gap: 0;
+}
+
+.App-field > .gl-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right-width: 0;
+}
+
+.App-field > .gl-btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Focus: one soft accent-soft halo around the glued unit instead of a hard ring on each part.
+   The input's accent border (or the button's inset ring) marks which part has focus. */
+.App-field {
+  border-radius: var(--radius-md);
+  transition: box-shadow var(--fade);
+}
+
+.App-field:focus-within {
+  box-shadow: 0 0 0 3px var(--accent-soft), 0 0 16px var(--accent-soft);
+}
+
+.App-field > .gl-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* "Let Go" feedback in sage (the result colour) instead of the bright ink fill.
+   Touch screens get it only while pressed, so it doesn't stick after a tap. */
+.App-field > .gl-btn--primary:active {
+  background: var(--sage-strong);
+}
+
+@media (hover: hover) {
+  .App-field > .gl-btn--primary:hover {
+    background: var(--sage-strong);
   }
-  .path-number-form {
-    margin: 8vw 6vw;
+}
+
+@media (hover: none) {
+  .App-field > .gl-btn--primary:hover:not(:active) {
+    background: var(--accent);
+  }
+}
+
+/* After "Let Go" the button stays green with the heart, until the input is focused again */
+.App-field[data-cheered]:not(:has(.gl-input:focus)) > .gl-btn--primary {
+  background: var(--sage-strong);
+}
+
+.App-field > .gl-btn:focus-visible {
+  outline: 2px solid var(--on-accent);
+  outline-offset: -5px;
+}
+
+/* Same fade on the buttons and input */
+.App .gl-btn {
+  transition: background-color var(--fade), border-color var(--fade), color var(--fade);
+}
+
+.App .gl-input {
+  transition: border-color var(--fade);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .App-field, .App .gl-btn, .App .gl-input { transition: none; }
+}
+
+/* Quiet helper in the one brand hue (accent) instead of mist, to keep the palette to one accent */
+.App-quiet {
+  color: var(--accent);
+}
+
+.App-quiet:active {
+  background: var(--accent-soft);
+}
+
+@media (hover: hover) {
+  .App-quiet:hover {
+    background: var(--accent-soft);
+  }
+}
+
+/* Touch: no sticky hover after a tap, only feedback while pressed */
+@media (hover: none) {
+  .App-quiet:hover:not(:active) {
+    background: transparent;
   }
 }

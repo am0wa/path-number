@@ -1,22 +1,22 @@
 import { useState, type ChangeEvent, type KeyboardEvent } from 'react';
-import { Badge, Button, Form, InputGroup } from 'react-bootstrap';
 
 import { KeyboardKey } from '../core/keyboard';
 import { dateAsDigits, pathNumberOf, sanitize } from '../core/path-number';
+import { HeartIcon } from './heart-icon';
 
 export const PathNumberComponent = () => {
   const [input, setInput] = useState('');
-  const [greeting, setGreeting] = useState<string>();
+  const [cheered, setCheered] = useState(false);
 
   const pathNumber = pathNumberOf(input);
 
   const check = (value: string) => {
-    setGreeting(undefined);
+    setCheered(false);
     setInput(sanitize(value));
   };
 
   const letGo = () => {
-    setGreeting('♥️');
+    setCheered(true);
     setInput('');
   };
 
@@ -30,10 +30,11 @@ export const PathNumberComponent = () => {
   };
 
   return (
-    <div className="path-number-form">
-      <h2>Good Luck: <Badge bg="success">{pathNumber ?? greeting ?? '#'}</Badge></h2>
-      <InputGroup>
-        <Form.Control
+    <main className="gl-content">
+      <h1 className="gl-heading App-heading">Good Luck<span className="gl-badge gl-badge--lg gl-badge--sage App-badge">{pathNumber ?? (cheered ? <HeartIcon /> : '#')}</span></h1>
+      <div className="gl-field App-field" data-cheered={cheered || undefined}>
+        <input
+          className="gl-input App-input"
           placeholder="check number"
           name="numToCheckInput"
           value={input}
@@ -41,11 +42,13 @@ export const PathNumberComponent = () => {
           onKeyDown={onKeyDown}
           autoComplete="off"
         />
-        <Button variant="outline-success" onClick={letGo}>Let Go</Button>
-      </InputGroup>
-      <Button variant="outline-info" onClick={() => check(dateAsDigits(new Date()))}>
-        Today's Date
-      </Button>
-    </div>
+        <button type="button" className="gl-btn gl-btn--primary" onClick={letGo}>Let Go</button>
+      </div>
+      <div className="gl-row">
+        <button type="button" className="gl-btn gl-btn--quiet App-quiet" onClick={() => check(dateAsDigits(new Date()))}>
+          Today's Date
+        </button>
+      </div>
+    </main>
   );
 };
