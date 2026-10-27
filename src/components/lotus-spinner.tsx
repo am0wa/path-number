@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from 'react';
 
 import { KeyboardKey } from '../core/keyboard';
-import { LOTUS_COLS, lotusFrame } from '../core/lotus';
+import { LOTUS_COLS, LOTUS_ROWS, lotusFrame } from '../core/lotus';
 
 /** ~30fps is plenty for the slow swell and keeps re-renders cheap. */
 const FRAME_MS = 33;
@@ -67,6 +67,7 @@ export const LotusSpinner = () => {
 
   const style = {
     '--cols': LOTUS_COLS,
+    '--rows': LOTUS_ROWS,
     '--zoom': zoomed ? ZOOM : 1,
     '--zoom-ms': `${ZOOM_MS}ms`,
     '--zoom-x': origin.x,
