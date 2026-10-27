@@ -1,26 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
+    "target": "es2022",
+    "lib": ["dom", "dom.iterable", "es2022"],
     "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "jsx": "react"
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src", "tests", "vite.config.ts"]
 }

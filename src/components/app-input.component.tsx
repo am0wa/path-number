@@ -1,138 +1,90 @@
-import React, { Component, SyntheticEvent } from 'react';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { debounceTime, throttleTime } from 'rxjs/operators';
+import { useId, useRef, type ChangeEvent, type KeyboardEvent } from 'react';
+import { Alert, Form } from 'react-bootstrap';
 
-import {
-  FormGroup,
-  FormText,
-  Input,
-  Label,
-  UncontrolledAlert
-} from 'reactstrap';
-import { InputType } from 'reactstrap/lib/Input';
-import { AlertInfo, AlertType } from '../ui';
+import { type AlertInfo, AlertType } from '../ui';
 import { KeyboardKey } from '../core/keyboard';
 
-interface AInputProps {
+interface AppInputProps {
   name: string;
   placeholder: string;
-  type?: InputType;
+  type?: string;
   label?: string;
   value: string | undefined;
-  /** ms */
+  /** ms; leading-edge throttle of `onChange` */
   throttleTime?: number;
   description?: string;
   alertMessage?: string;
   datalist?: string[];
-  autoComplete?: 'on' | 'off'
+  autoComplete?: 'on' | 'off';
   onChange?: (input: string) => void;
   onEnterKey?: () => void;
   id?: string;
   log?: boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getAlertMessageEmptyForm = (name: string) => `It's an Empty field. Please input the ${name}`;
+export const AlertElement = ({ alert }: { alert: AlertInfo | undefined }) =>
+  alert ? <Alert variant={alert.type} dismissible>{alert.message}</Alert> : null;
 
-export const alertElement = (alert: AlertInfo | undefined) => {
-  return alert
-    ? <UncontrolledAlert color={alert.type}>{alert.message}</UncontrolledAlert>
-    : null
-};
+export const AppInputComponent = ({
+  name,
+  placeholder,
+  type = 'text',
+  label,
+  value,
+  throttleTime = 0,
+  description,
+  alertMessage,
+  datalist,
+  autoComplete,
+  onChange,
+  onEnterKey,
+  id = name,
+  log,
+}: AppInputProps) => {
+  const datalistId = useId();
+  const lastEmitAt = useRef(-Infinity);
 
-export class AppInputComponent extends Component<AInputProps> {
-
-  static alertElement(type: AlertType, message: string | undefined) {
-    return message
-      ? <UncontrolledAlert color={type}> {message}</UncontrolledAlert>
-      : ''
-  }
-
-  static descriptionElement = (description: string | undefined) => {
-    return description
-      ? <FormText>{description}</FormText>
-      : "";
-  };
-
-  static datalistElement = (datalist: string[] | undefined, listId: string) => {
-    return datalist
-      ? <datalist id={listId}>
-          {AppInputComponent.datalistOptions(datalist)}
-        </datalist>
-      : "";
-  };
-
-  private static datalistOptions = (datalist: string[]) => {
-    return datalist.map((item, index) => <option key={index} value={item}/>)
-  };
-
-  readonly input$: Observable<string>;
-  private readonly _inputEmitter = new Subject<string>();
-  private _inputSubscription?: Subscription;
-
-  constructor(props: Readonly<AInputProps>) {
-    super(props);
-    this.input$ = this._inputEmitter.asObservable();
-  }
-
-  componentDidMount(): void {
-    this._inputSubscription = this.input$.pipe(
-      throttleTime(this.props.throttleTime || 0)
-    ).subscribe(
-      (input) => {
-        if (this.props.onChange) {
-          /* handled by parent*/
-          this.props.onChange(input);
-        }
-      }
-    )
-  }
-
-  componentWillUnmount(): void {
-    this._inputSubscription?.unsubscribe();
-  }
-
-  render() {
-    return (
-      <FormGroup>
-        {this.props.label && <Label for={this.props.id || this.props.name}>{this.props.label}</Label>}
-        <Input
-          type={this.props.type || "text"}
-          name={this.props.name}
-          id={this.props.id || this.props.name}
-          placeholder={this.props.placeholder}
-          autoComplete={this.props.autoComplete}
-          value={this.props.value}
-          onChange={this.onInputChange}
-          onKeyDown={this.onKeyDown}
-          list={this.props.datalist ? this.props.name +'s' : ''}
-        />
-        {AppInputComponent.datalistElement(this.props.datalist, this.props.name +'s')}
-        {AppInputComponent.descriptionElement(this.props.description)}
-        {
-          alertElement({
-            type: AlertType.Warning,
-            message: this.props.alertMessage + ' ' + this.props.name
-          })
-        }
-      </FormGroup>
-    );
-  };
-
-  onKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === KeyboardKey.Enter && this.props.onEnterKey) {
-      event.preventDefault();
-      this.props.onEnterKey();
-    }
-  };
-
-  onInputChange = (event: SyntheticEvent) => {
-    const { name, value } = event.target as HTMLInputElement;
-    if (this.props.log){
+  const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    if (log) {
       console.log(`Input changed: '${name}' value: ${value}`);
     }
-    this._inputEmitter.next(value);
+    const now = Date.now();
+    if (now - lastEmitAt.current >= throttleTime) {
+      lastEmitAt.current = now;
+      onChange?.(value);
+    }
   };
-}
+
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === KeyboardKey.Enter && onEnterKey) {
+      event.preventDefault();
+      onEnterKey();
+    }
+  };
+
+  return (
+    <Form.Group className="mb-3" controlId={id}>
+      {label && <Form.Label>{label}</Form.Label>}
+      <Form.Control
+        type={type}
+        name={name}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        value={value}
+        onChange={onInputChange}
+        onKeyDown={onKeyDown}
+        list={datalist ? datalistId : undefined}
+      />
+      {datalist && (
+        <datalist id={datalistId}>
+          {datalist.map((item) => <option key={item} value={item} />)}
+        </datalist>
+      )}
+      {description && <Form.Text>{description}</Form.Text>}
+      <AlertElement alert={alertMessage ? { type: AlertType.Warning, message: `${alertMessage} ${name}` } : undefined} />
+    </Form.Group>
+  );
+};
 
 export default AppInputComponent;
