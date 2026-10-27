@@ -45,19 +45,28 @@
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
-  /* Our double tap zooms the lotus, not the page */
+  /* No double-tap page zoom on the lotus, so taps register at once */
   touch-action: manipulation;
-  /* Double tap zooms in around the tapped point (set from JS) */
+  cursor: zoom-in;
+  /* Tap zooms in around the tapped point (set from JS) */
   position: relative;
   z-index: 1;
   transform-origin: var(--zoom-x) var(--zoom-y);
   transform: scale(var(--zoom));
-  transition: transform .5s ease;
+  transition: transform var(--zoom-ms) ease;
+}
+
+/* Keyboard focus as a soft ring, like the field's halo */
+.App-lotus:focus-visible {
+  outline: 2px solid var(--accent-soft);
+  outline-offset: var(--space-2);
+  border-radius: var(--radius-md);
 }
 
 /* Zoomed, the wide 2em glow blurs a 4× area and stalls the zoom-out (~200ms on desktop Chrome); the near glow is enough */
 .App-lotus[data-zoomed] {
   text-shadow: 0 0 .5em color-mix(in srgb, var(--accent) var(--bloom), transparent);
+  cursor: zoom-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -81,6 +90,9 @@
   font-size: 32px;
   line-height: 40px;
   letter-spacing: -0.01em;
+  /* A title, not content to copy: taps around the lotus shouldn't select it */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Result badge: a disc of heading size × φ (≈52px) around one glyph (1–9, ♥️ or #) at heading size.
