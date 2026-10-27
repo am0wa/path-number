@@ -7,6 +7,8 @@
   /* Calmer colour fades than the design's .15s */
   --fade: .3s ease;
   min-height: 100vh;
+  /* The visible height: in-app browsers (Instagram) keep their toolbars, so 100vh runs past the bottom */
+  min-height: 100dvh;
   /* The zoomed lotus may outgrow the screen; clip it without making a scroll container */
   overflow-x: clip;
   padding-left: var(--gutter);
