@@ -42,7 +42,15 @@ export const PathNumberComponent = () => {
 
   return (
     <main className="gl-content">
-      <h1 className="gl-heading App-heading">Good Luck<span key={released?.seq} className="gl-badge gl-badge--lg gl-badge--sage App-badge" data-released={released?.value}>{pathNumber ?? (cheered ? <HeartIcon /> : '#')}</span></h1>
+      <h1 className="gl-heading App-heading">Good Luck<span
+          // Remounts per keystroke (the badge beats) and per "Let Go" (the release replays); input is empty while released
+          key={released ? `released-${released.seq}` : input}
+          className="gl-badge gl-badge--lg gl-badge--sage App-badge"
+          data-beat={pathNumber !== undefined || undefined}
+          data-released={released?.value}
+        >
+          {pathNumber ?? (cheered ? <HeartIcon /> : '#')}
+        </span></h1>
       <div className="gl-field App-field" data-cheered={cheered || undefined}>
         <input
           ref={inputRef}

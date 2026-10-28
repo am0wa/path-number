@@ -39,3 +39,18 @@ test('"?" opens the root number hint card', () => {
   expect(hint).toHaveAttribute('popover', 'auto');
   expect(help).toHaveAttribute('popovertarget', hint?.id);
 });
+
+test('the badge beats on every keystroke that recomputes it', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+
+  const input = screen.getByRole('textbox', { name: 'name or number' });
+  await user.type(input, '1');
+  const first = screen.getByRole('heading').querySelector('[data-beat]');
+  // 9 keeps the root number at 1, yet the beat replays: a fresh element restarts the CSS animation
+  await user.type(input, '9');
+  const second = screen.getByRole('heading').querySelector('[data-beat]');
+
+  expect(second).toHaveTextContent('1');
+  expect(second).not.toBe(first);
+});

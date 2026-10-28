@@ -209,6 +209,25 @@
   to { opacity: 0; }
 }
 
+/* As you type, the badge beats once on every recompute: a slight swell with a sage glow, so a live result isn't missed */
+.App-badge[data-beat] {
+  animation: App-beat 1.1s ease-out;
+}
+
+@keyframes App-beat {
+  from { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+  20% { transform: scale(1.08); box-shadow: 0 0 20px 4px color-mix(in srgb, var(--sage) 55%, transparent); }
+  to { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .App-badge[data-beat] { animation-name: App-beat-glow; }
+}
+
+@keyframes App-beat-glow {
+  20% { box-shadow: 0 0 20px 4px color-mix(in srgb, var(--sage) 55%, transparent); }
+}
+
 /* Heart matches the digits' optical size (≈ cap height) */
 .App-heart {
   width: 0.75em;
@@ -289,13 +308,15 @@
   .App-field, .App .gl-btn, .App .gl-input { transition: none; }
 }
 
-/* "?" in the bottom-right corner, its disc inset by the page gutter from both edges: a round quiet button, one control-height square */
+/* "?" in the bottom-right corner, its disc inset by the page gutter from both edges: a round quiet button, one control-height square.
+   A faint outline shows the tap area at rest. */
 .App-help {
   position: absolute;
   right: var(--gutter);
   bottom: var(--gutter);
   width: var(--control-height);
   padding: 0;
+  border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   font-size: 20px;
 }
@@ -329,8 +350,26 @@
 /* The worked example in the mono numeral face */
 .App-hint .App-hint-example {
   margin: 0;
+  text-align: center;
   font-family: var(--font-mono);
   color: var(--sage);
+}
+
+/* The result stays in sage, the result colour, just heavier */
+.App-hint .App-hint-example b {
+  color: inherit;
+}
+
+/* Closing aside, like a note on the back of a card: smaller, quieter, set apart from the example */
+.App-hint .App-hint-note {
+  margin: var(--space-2) 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
+  /* Sage like the example, softened toward the muted ink so the aside stays quieter */
+  color: color-mix(in srgb, var(--sage) 70%, var(--ink-muted));
+  /* Letterpress: dark lip above, light lip below, so the words look pressed into the card */
+  text-shadow: 0 -1px 0 rgb(0 0 0 / .35), 0 1px 0 rgb(255 255 255 / .12);
 }
 
 /* Quiet helper in the one brand hue (accent) instead of mist, to keep the palette to one accent */

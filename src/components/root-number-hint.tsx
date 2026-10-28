@@ -13,7 +13,8 @@ export const RootNumberHint = () => (
     </button>
     <div className="App-hint" id={HINT_ID} popover="auto">
       <p>Adds all digits again &amp; again until <b>one</b> is left</p>
-      <p className="App-hint-example">108 → 1 + 0 + 8 → 9</p>
+      <p className="App-hint-example">108 → 1 + 0 + 8 → <b>9</b></p>
+      <p className="App-hint-note"><span aria-hidden="true">🌀</span> The Meaning is Urs <span aria-hidden="true">🌀</span></p>
     </div>
   </>
 );
