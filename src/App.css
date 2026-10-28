@@ -160,6 +160,8 @@
   /* A title, not content to copy: taps around the lotus shouldn't select it */
   user-select: none;
   -webkit-user-select: none;
+  /* Anchors the whisper that rises over it */
+  position: relative;
 }
 
 /* Result badge: a disc of heading size × φ (≈52px) around one glyph (1–9, ♥️ or #) at heading size.
@@ -233,6 +235,95 @@
   width: 0.75em;
   height: 0.75em;
   color: var(--rose);
+}
+
+/* After "Let Go" the heart badge is a button: a tap sends luck. Looks like the badge, not a control;
+   no double-tap zoom, so quick taps each register. */
+button.App-badge {
+  border: 0;
+  font: inherit;
+  font-size: 32px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button.App-badge:focus-visible {
+  outline: 2px solid var(--accent-soft);
+  outline-offset: 3px;
+}
+
+/* Each tap the heart beats once with a soft rose glow, like the badge does for a live result */
+.App-badge[data-sent] > .App-heart {
+  animation: App-heart-beat .6s ease-out;
+}
+
+@keyframes App-heart-beat {
+  from { transform: scale(1); filter: drop-shadow(0 0 0 transparent); }
+  30% { transform: scale(1.25); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--rose) 70%, transparent)); }
+  to { transform: scale(1); filter: drop-shadow(0 0 0 transparent); }
+}
+
+/* …and a small heart floats up, sways and fades. Above the heading, not in the flow. */
+.App-float {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  z-index: 2;
+  font-size: 20px;
+  white-space: nowrap;
+  color: var(--rose);
+  pointer-events: none;
+  animation: App-float 1.4s cubic-bezier(.2, .6, .3, 1) forwards;
+}
+
+.App-float > .App-heart, .App-float > .App-spark {
+  width: 1em;
+  height: 1em;
+}
+
+/* The spark that flies with a whisper: the lotus's lavender, a touch bigger than the hearts */
+.App-float > .App-spark {
+  width: 1.2em;
+  height: 1.2em;
+  color: var(--accent);
+}
+
+@keyframes App-float {
+  from { opacity: 1; transform: translate(-50%, 0) scale(.6); }
+  50% { transform: translate(calc(-50% + var(--drift)), -50px) scale(1); }
+  to { opacity: 0; transform: translate(calc(-50% - var(--drift) / 2), -90px) scale(.9); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .App-badge[data-sent] > .App-heart { animation-name: App-heart-glow; }
+  .App-float { display: none; }
+  .App-whisper { animation-name: App-release-fade; }
+}
+
+/* Every 3rd tap a whisper ("be present •"…) rises over the heading, centred, and fades out slowly */
+.App-whisper {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  font: 500 14px/20px var(--font-sans);
+  letter-spacing: normal;
+  white-space: nowrap;
+  color: var(--ink-muted);
+  pointer-events: none;
+  translate: -50% 0;
+  animation: App-whisper 2.8s ease-out forwards;
+}
+
+@keyframes App-whisper {
+  from { opacity: 0; transform: translateY(8px); }
+  20% { opacity: 1; transform: translateY(0); }
+  70% { opacity: 1; }
+  to { opacity: 0; transform: translateY(-16px); }
+}
+
+@keyframes App-heart-glow {
+  30% { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--rose) 70%, transparent)); }
 }
 
 /* Input and "Let Go" glued into one control: no gap, shared inner edge squared off */

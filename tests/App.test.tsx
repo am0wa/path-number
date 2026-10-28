@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '../src/App';
 
@@ -53,4 +53,39 @@ test('the badge beats on every keystroke that recomputes it', async () => {
 
   expect(second).toHaveTextContent('1');
   expect(second).not.toBe(first);
+});
+
+test('after "Let Go" a tap on the heart sends luck, every 3rd tap whispers the next line', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+
+  await user.type(screen.getByRole('textbox', { name: 'name or number' }), '7');
+  await user.click(screen.getByRole('button', { name: 'Let Go' }));
+  const heart = screen.getByRole('button', { name: 'Send good luck' });
+  const tap = async (times: number) => {
+    for (let i = 0; i < times; i++) {
+      await user.click(heart);
+    }
+  };
+
+  await tap(3);
+
+  expect(heart).toHaveAttribute('data-sent', '3');
+  expect(heart.querySelectorAll('.App-float')).toHaveLength(3);
+  // The whisper's tap flies a spark instead of a heart
+  expect(heart.querySelectorAll('.App-float')[2].querySelector('.App-spark')).toBeInTheDocument();
+  expect(screen.getByRole('heading')).toHaveTextContent('be present');
+
+  // Fast taps don't cut it short: the next whisper waits until this one has faded
+  await tap(3);
+  expect(screen.getByRole('heading')).toHaveTextContent('be present');
+
+  fireEvent.animationEnd(screen.getByText(/be present/));
+  await tap(1);
+  expect(screen.getByRole('heading')).toHaveTextContent('be aware');
+  expect(screen.getByRole('heading')).not.toHaveTextContent('be present');
+
+  // Typing again turns the heart back into the live result
+  await user.type(screen.getByRole('textbox', { name: 'name or number' }), '1');
+  expect(screen.queryByRole('button', { name: 'Send good luck' })).not.toBeInTheDocument();
 });
