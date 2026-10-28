@@ -1,6 +1,6 @@
 {
   "name": "path-number",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "private": true,
   "type": "module",
   "homepage": "https://soulway.io",
@@ -15,9 +15,7 @@
     "lotus": "node scripts/generate-lotus.ts"
   },
   "dependencies": {
-    "bootstrap": "^5.3.8",
     "react": "^19.3.1",
-    "react-bootstrap": "^2.10.10",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
