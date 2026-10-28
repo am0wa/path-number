@@ -1,4 +1,13 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type AnimationEvent,
+  type CSSProperties,
+  type KeyboardEvent,
+  type MouseEvent,
+} from 'react';
 
 import { KeyboardKey } from '../core/keyboard';
 import { LOTUS_COLS, LOTUS_ROWS, lotusFrame } from '../core/lotus';
@@ -22,14 +31,39 @@ const ART_FONT_PX = 10;
 
 const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
+/** Set once the lotus has breathed its invitation or been tapped, so the invitation is shown only once.
+ *  Dev neither reads nor stores it, so the invitation plays on every reload while working on it. */
+const INVITED_KEY = 'lotus-invited';
+
+/** Storage can be blocked (private windows, cleared site data): then the invitation just shows again. */
+const wasInvited = () => {
+  if (import.meta.env.DEV) return false;
+  try {
+    return localStorage.getItem(INVITED_KEY) !== null;
+  } catch {
+    return false;
+  }
+};
+
+const markInvited = () => {
+  if (import.meta.env.DEV) return;
+  try {
+    localStorage.setItem(INVITED_KEY, '1');
+  } catch {
+    // Not remembered; harmless
+  }
+};
+
 /**
  * ASCII lotus (generated from public/lotus_inverted.jpg) that twinkles and breathes; still under reduced motion.
  * Tap (or click) zooms in around the tapped point and back out; Enter/Space toggle around the centre, Escape zooms out.
+ * On the first visit it takes one deeper breath, a wordless hint that it can be touched.
  */
 export const LotusSpinner = () => {
   const [still] = useState(prefersReducedMotion);
   const [seconds, setSeconds] = useState<number | null>(still ? null : 0);
   const [zoomed, setZoomed] = useState(false);
+  const [invite, setInvite] = useState(() => !still && !wasInvited());
   /** Kept after zooming out, so the lotus shrinks back towards the same point. */
   const [origin, setOrigin] = useState(CENTER);
   const toggledAt = useRef(-Infinity);
@@ -67,7 +101,19 @@ export const LotusSpinner = () => {
     return () => cancelAnimationFrame(id);
   }, [still]);
 
+  const endInvite = () => {
+    if (!invite) return;
+    setInvite(false);
+    markInvited();
+  };
+
+  /** Only the box's own breath; the art's glow animation bubbles up too. */
+  const onAnimationEnd = (event: AnimationEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) endInvite();
+  };
+
   const toggle = (at: { x: string; y: string }) => {
+    endInvite();
     const now = performance.now();
     if (now - toggledAt.current < ZOOM_MS) return;
     toggledAt.current = now;
@@ -109,9 +155,11 @@ export const LotusSpinner = () => {
       aria-label="Lotus"
       aria-pressed={zoomed}
       data-zoomed={zoomed || undefined}
+      data-invite={invite || undefined}
       style={style}
       onClick={onClick}
       onKeyDown={onKeyDown}
+      onAnimationEnd={onAnimationEnd}
     >
       <pre ref={artRef} className="App-lotus-art">
         {lotusFrame(seconds)}

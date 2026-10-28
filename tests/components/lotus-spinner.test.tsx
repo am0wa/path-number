@@ -11,6 +11,8 @@ describe('LotusSpinner', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+    localStorage.clear();
   });
 
   test('animates frame to frame', () => {
@@ -68,5 +70,51 @@ describe('LotusSpinner', () => {
 
     fireEvent.keyDown(lotus, { key: 'Escape' });
     expect(lotus).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('breathes an invitation once: not again after it played', () => {
+    vi.stubEnv('DEV', false);
+    reducedMotion(false);
+    const { unmount } = render(<LotusSpinner />);
+    const lotus = screen.getByRole('button', { name: 'Lotus' });
+    expect(lotus).toHaveAttribute('data-invite');
+
+    fireEvent.animationEnd(lotus);
+    expect(lotus).not.toHaveAttribute('data-invite');
+
+    unmount();
+    render(<LotusSpinner />);
+    expect(screen.getByRole('button', { name: 'Lotus' })).not.toHaveAttribute('data-invite');
+  });
+
+  test('a tap before the breath ends the invitation', () => {
+    vi.stubEnv('DEV', false);
+    reducedMotion(false);
+    render(<LotusSpinner />);
+    const lotus = screen.getByRole('button', { name: 'Lotus' });
+
+    fireEvent.click(lotus);
+
+    expect(lotus).not.toHaveAttribute('data-invite');
+    expect(localStorage.getItem('lotus-invited')).not.toBeNull();
+  });
+
+  test('in dev the invitation plays on every visit, even with the flag already stored', () => {
+    vi.stubEnv('DEV', true);
+    localStorage.setItem('lotus-invited', '1');
+    reducedMotion(false);
+    const { unmount } = render(<LotusSpinner />);
+    fireEvent.animationEnd(screen.getByRole('button', { name: 'Lotus' }));
+
+    unmount();
+    render(<LotusSpinner />);
+    expect(screen.getByRole('button', { name: 'Lotus' })).toHaveAttribute('data-invite');
+  });
+
+  test('no invitation under reduced motion', () => {
+    reducedMotion(true);
+    render(<LotusSpinner />);
+
+    expect(screen.getByRole('button', { name: 'Lotus' })).not.toHaveAttribute('data-invite');
   });
 });

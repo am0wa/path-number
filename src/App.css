@@ -91,6 +91,31 @@
   .App-lotus { transition: none; }
 }
 
+/* First visit only: after a moment the lotus takes one deeper breath (swells and glows), a wordless "touch me".
+   `scale` composes with the zoom `transform`. Never set under reduced motion. */
+.App-lotus[data-invite] {
+  animation: App-lotus-breathe 3.2s ease-in-out 1.6s;
+}
+
+.App-lotus[data-invite] > .App-lotus-art {
+  animation: App-lotus-bloom 3.2s ease-in-out 1.6s;
+}
+
+@keyframes App-lotus-breathe {
+  45% { scale: 1.05; }
+}
+
+/* Registered so the glow strength can animate */
+@property --bloom {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 15%;
+}
+
+@keyframes App-lotus-bloom {
+  45% { --bloom: 40%; }
+}
+
 /* Spans the gl-screen side gutters on the bottom edge */
 .App-footer {
   position: relative;
